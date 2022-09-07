@@ -1,13 +1,24 @@
-import { Link, Outlet } from "react-router-dom";
-import { useSuperHerosData } from "../hooks/useSuperHerosData";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useSuperHerosData, useAddSuperHeroData } from "../hooks/useSuperHerosData";
 
 const RQSuperHerosPage = () => {
+  const [name, setName] = useState("");
+  const [alterEgo, setAlterEgo] = useState("");
+
   const onSuccess = () => {
     console.log("Perform side effect after data fetching");
   };
   const onError = () => {
     console.log("Perform side effect after encountering error");
   };
+
+  const {mutate: addHero, isLoading: posting} = useAddSuperHeroData()
+
+  const handleClick = () => {
+    const hero = {name, alterEgo}
+    addHero(hero)
+  }
 
   const { isLoading, isError, error, data, refetch, isFetching } =
     useSuperHerosData(onSuccess, onError);
@@ -21,13 +32,27 @@ const RQSuperHerosPage = () => {
 
   return (
     <>
-      <div>RQSuperHerosPage</div>
+      <h2>RQSuperHerosPage</h2>
+      <div>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          type="text"
+          value={alterEgo}
+          onChange={(e) => setAlterEgo(e.target.value)}
+        />
+        <button onClick={handleClick}>Add Hero</button>
+      </div>
       <button onClick={refetch}>Fetch heroes</button>
       {data?.data?.map((hero) => (
         <div key={hero.id}>
           <Link to={`/rq-super-heroes/${hero.id}`}>{hero.name}</Link>
         </div>
       ))}
+      <div>{posting && 'adding superhero' }</div>
     </>
   );
 };
